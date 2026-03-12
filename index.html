@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Dabby</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #0f0f0f;
+      --surface: #191919;
+      --heat: #ff5722;
+      --cool: #29b6f6;
+      --text: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.5);
+      --border: rgba(255, 255, 255, 0.07);
+      --radius: 16px;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      min-height: 100vh;
+      max-width: 430px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    /* ── Screens ── */
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* ── Shared Logo ── */
+
+    .logo {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      background: linear-gradient(135deg, #15803d 0%, #22c55e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo-img {
+      height: 80px;
+      width: auto;
+      border-radius: 18px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .timer-header .logo-img {
+      height: 44px;
+      margin: 0 auto;
+    }
+
+    /* ════════════════════════════════
+       MAIN SCREEN
+    ════════════════════════════════ */
+
+    #main-screen {
+      padding-bottom: 40px;
+      overflow-y: auto;
+    }
+
+    .header {
+      padding: 52px 24px 12px;
+      text-align: center;
+      position: relative;
+    }
+
+    .tagline {
+      color: var(--text-muted);
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 5px;
+    }
+
+    /* Start button area */
+
+    .start-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 24px 24px;
+      gap: 14px;
+    }
+
+    .start-btn {
+      width: 168px;
+      height: 168px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 32%, #22c55e 0%, #15803d 100%);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 0 10px rgba(34, 197, 94, 0.06),
+        0 0 0 20px rgba(34, 197, 94, 0.03),
+        0 10px 40px rgba(34, 197, 94, 0.25);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      user-select: none;
+      animation: pulse 2.8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow:
+          0 0 0 10px rgba(34, 197, 94, 0.06),
+          0 0 0 20px rgba(34, 197, 94, 0.03),
+          0 10px 40px rgba(34, 197, 94, 0.25);
+      }
+      50% {
+        box-shadow:
+          0 0 0 14px rgba(34, 197, 94, 0.09),
+          0 0 0 26px rgba(34, 197, 94, 0.04),
+          0 14px 50px rgba(34, 197, 94, 0.35);
+      }
+    }
+
+    .start-btn:active {
+      transform: scale(0.93);
+      animation: none;
+      box-shadow:
+        0 0 0 8px rgba(34, 197, 94, 0.05),
+        0 5px 24px rgba(34, 197, 94, 0.18);
+    }
+
+    .start-text {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+
+    .selected-times {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      font-size: 15px;
+    }
+
+    .time-badge {
+      font-weight: 700;
+    }
+
+    .heat-badge { color: var(--heat); }
+    .cool-badge { color: var(--cool); }
+    .divider { color: var(--text-muted); }
+
+    .selected-name {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* Preset cards */
+
+    .presets-section {
+      padding: 0 16px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      padding: 0 6px;
+    }
+
+    .presets-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .preset-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 15px;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.12s ease;
+      user-select: none;
+    }
+
+    .preset-card:active {
+      transform: scale(0.985);
+    }
+
+    .preset-card.selected {
+      border-color: var(--heat);
+      background: rgba(255, 87, 34, 0.06);
+    }
+
+    .preset-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0;
+    }
+
+    .preset-card.expanded .preset-top {
+      margin-bottom: 8px;
+    }
+
+    .preset-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .preset-emoji {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .preset-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .preset-temp {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .preset-times {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    .time-chip {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .heat-chip {
+      background: rgba(255, 87, 34, 0.14);
+      color: var(--heat);
+    }
+
+    .cool-chip {
+      background: rgba(41, 182, 246, 0.14);
+      color: var(--cool);
+    }
+
+    .preset-desc-wrap {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.28s ease;
+    }
+
+    .preset-card.expanded .preset-desc-wrap {
+      max-height: 120px;
+    }
+
+    .preset-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* Custom preset stepper controls */
+
+    .preset-card[data-id="custom"].expanded .preset-desc-wrap {
+      max-height: 280px;
+    }
+
+    .custom-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .custom-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .custom-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .stepper-btn {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 18px;
+      width: 36px;
+      height: 34px;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .stepper-btn:hover { background: rgba(255,255,255,0.08); }
+    .stepper-btn:active { background: rgba(255,255,255,0.14); transform: none; }
+
+    .stepper-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      min-width: 46px;
+      text-align: center;
+    }
+
+    .preset-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 6px 0 0;
+      margin-top: 8px;
+      background: none;
+      border: none;
+      border-top: 1px solid var(--border);
+      cursor: pointer;
+      color: #22c55e;
+      font-size: 11px;
+      font-family: inherit;
+      letter-spacing: 0.5px;
+      transition: color 0.2s ease;
+    }
+
+    .preset-toggle:hover { color: #22c55e; }
+    .preset-toggle:active { transform: none; }
+
+    .preset-toggle svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+    }
+
+    .preset-card.expanded .preset-toggle svg {
+      transform: rotate(180deg);
+    }
+
+    /* ════════════════════════════════
+       TIMER SCREEN
+    ════════════════════════════════ */
+
+    #timer-screen {
+      align-items: center;
+      padding: 52px 24px 44px;
+      min-height: 100vh;
+      background: var(--bg);
+      transition: background 0.6s ease;
+      position: relative;
+    }
+
+    #timer-screen.heat {
+      background: radial-gradient(ellipse at 50% 0%, rgba(255, 87, 34, 0.13) 0%, transparent 65%), var(--bg);
+    }
+
+    #timer-screen.cool {
+      background: radial-gradient(ellipse at 50% 0%, rgba(41, 182, 246, 0.13) 0%, transparent 65%), var(--bg);
+    }
+
+    /* Home button */
+
+    .home-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.12s ease;
+    }
+
+    .home-btn:hover {
+      background: var(--surface-2, #232323);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: var(--text);
+    }
+
+    .home-btn:active {
+      transform: scale(0.92);
+    }
+
+    .home-btn svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .timer-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .timer-header .logo {
+      font-size: 28px;
+    }
+
+    #timer-preset-label {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .phase-indicator {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 36px;
+    }
+
+    #phase-icon {
+      font-size: 26px;
+    }
+
+    #phase-text {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    /* SVG Ring Timer */
+
+    .timer-container {
+      position: relative;
+      width: 248px;
+      height: 248px;
+      margin-bottom: 36px;
+    }
+
+    .timer-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    #progress-ring {
+      transition: stroke-dashoffset 0.85s linear, stroke 0.5s ease, filter 0.5s ease;
+    }
+
+    #time-display {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 60px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      transition: color 0.5s ease;
+      white-space: nowrap;
+    }
+
+    /* Done message */
+
+    #done-message {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+      display: none;
+      animation: fadeInUp 0.4s ease;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Phase steps */
+
+    .phase-steps {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: auto;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .step.active {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .step.completed {
+      color: rgba(255, 255, 255, 0.22);
+      text-decoration: line-through;
+      text-decoration-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .step-arrow {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* Sounds button (main screen header) */
+
+    .sounds-btn {
+      position: absolute;
+      top: 52px;
+      right: 20px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.12s ease;
+    }
+
+    .sounds-btn:hover {
+      background: var(--surface-2, #232323);
+      border-color: rgba(255,255,255,0.2);
+      color: var(--text);
+    }
+
+    .sounds-btn:active { transform: scale(0.92); }
+
+    .sounds-btn svg {
+      width: 17px;
+      height: 17px;
+      display: block;
+    }
+
+    /* Sounds panel */
+
+    #sounds-panel {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background: rgba(0,0,0,0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    #sounds-panel.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .sounds-sheet {
+      background: #161616;
+      border-radius: 20px 20px 0 0;
+      border-top: 1.5px solid var(--border);
+      padding: 0 0 40px;
+      max-height: 82vh;
+      overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    #sounds-panel.open .sounds-sheet {
+      transform: translateY(0);
+    }
+
+    .sounds-sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: #161616;
+      z-index: 1;
+    }
+
+    .sounds-sheet-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .sounds-close-btn {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 18px;
+      line-height: 1;
+      transition: color 0.2s ease;
+      font-family: inherit;
+    }
+
+    .sounds-close-btn:hover { color: var(--text); }
+
+    .sounds-section {
+      padding: 20px 20px 8px;
+    }
+
+    .sounds-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .sound-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sound-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px 11px 14px;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease;
+      user-select: none;
+    }
+
+    .sound-option.selected {
+      border-color: var(--heat);
+      background: rgba(255,87,34,0.06);
+    }
+
+    .sound-option-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sound-radio {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--text-muted);
+      flex-shrink: 0;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .sound-option.selected .sound-radio {
+      border-color: var(--heat);
+      background: var(--heat);
+      box-shadow: 0 0 6px rgba(255,87,34,0.5);
+    }
+
+    .sound-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .sound-preview-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+      font-family: inherit;
+      flex-shrink: 0;
+    }
+
+    .sound-preview-btn:hover {
+      background: rgba(255,255,255,0.12);
+      color: var(--text);
+    }
+
+    .sound-preview-btn:active { transform: scale(0.94); }
+
+    .sounds-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 20px 0;
+    }
+
+    /* Cool Down Now button */
+
+    .cooldown-btn {
+      margin-top: 44px;
+      background: rgba(41, 182, 246, 0.12);
+      border: 1.5px solid rgba(41, 182, 246, 0.5);
+      border-radius: 50px;
+      color: var(--cool);
+      padding: 14px 36px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.12s ease, box-shadow 0.2s ease;
+      font-family: inherit;
+      display: none;
+    }
+
+    .cooldown-btn.visible {
+      display: block;
+    }
+
+    .cooldown-btn:hover {
+      background: rgba(41, 182, 246, 0.2);
+      border-color: var(--cool);
+      box-shadow: 0 0 16px rgba(41, 182, 246, 0.25);
+    }
+
+    .cooldown-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Cancel button */
+
+    .cancel-btn {
+      margin-top: 44px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 50px;
+      color: var(--text-muted);
+      padding: 13px 36px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s ease, color 0.2s ease, transform 0.12s ease;
+      font-family: inherit;
+    }
+
+    .cancel-btn:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      color: var(--text);
+    }
+
+    .cancel-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* ════════════════════════════════
+       COUNTDOWN OVERLAY
+    ════════════════════════════════ */
+
+    #countdown-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      background: var(--bg);
+      gap: 16px;
+    }
+
+    #countdown-overlay.hidden {
+      display: none;
+    }
+
+    .countdown-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    #countdown-number {
+      font-size: 160px;
+      font-weight: 900;
+      line-height: 1;
+      color: #22c55e;
+      letter-spacing: -6px;
+      text-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+      animation: countdownPop 0.95s ease forwards;
+    }
+
+    @keyframes countdownPop {
+      0%   { transform: scale(0.45); opacity: 0; }
+      28%  { transform: scale(1.08); opacity: 1; }
+      55%  { transform: scale(1.0);  opacity: 1; }
+      82%  { transform: scale(1.0);  opacity: 1; }
+      100% { transform: scale(0.85); opacity: 0; }
+    }
+
+    /* ════════════════════════════════
+       DONE OVERLAY
+    ════════════════════════════════ */
+
+    #done-overlay {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #done-overlay.visible {
+      display: flex;
+      animation: overlayFadeIn 0.5s ease;
+    }
+
+    @keyframes overlayFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* Stars */
+    #stars-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .star {
+      position: absolute;
+      animation: twinkle var(--dur, 1.5s) ease-in-out infinite var(--delay, 0s);
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.12; transform: scale(0.7); }
+      50%       { opacity: 0.9;  transform: scale(1.3); }
+    }
+
+    /* Rocket */
+    .rocket-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 36px;
+    }
+
+    .rocket-emoji {
+      font-size: 100px;
+      line-height: 1;
+      display: block;
+      filter: drop-shadow(0 0 28px rgba(255, 140, 30, 0.75));
+      animation:
+        rocketLaunch 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+        rocketFloat  2.8s ease-in-out infinite 0.9s;
+    }
+
+    @keyframes rocketLaunch {
+      0%   { transform: translateY(100px) scale(0.45); opacity: 0; }
+      55%  { opacity: 1; }
+      100% { transform: translateY(0px)   scale(1);    opacity: 1; }
+    }
+
+    @keyframes rocketFloat {
+      0%, 100% { transform: translateY(0px);  }
+      50%       { transform: translateY(-22px); }
+    }
+
+    /* Liftoff text */
+    .liftoff-text {
+      font-size: 34px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      text-align: center;
+      opacity: 0;
+      animation: liftoffIn 0.7s ease forwards 0.65s;
+    }
+
+    @keyframes liftoffIn {
+      from { opacity: 0; transform: translateY(14px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0)    scale(1);    }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- ── MAIN SCREEN ── -->
+    <div id="main-screen" class="screen active">
+
+      <header class="header">
+        <img src="Dabby_Logo_nobg.png" class="logo-img" alt="Dabby" />
+        <button id="sounds-btn" class="sounds-btn" title="Sound settings">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+        </button>
+      </header>
+
+      <section class="start-section">
+        <button id="start-btn" class="start-btn">
+          <span class="start-text">Start</span>
+        </button>
+        <div class="selected-times">
+          <span id="selected-heat" class="time-badge heat-badge">🔥 30s</span>
+          <span class="divider">·</span>
+          <span id="selected-cool" class="time-badge cool-badge">❄️ 30s</span>
+        </div>
+        <p id="selected-name" class="selected-name">⚖️ Classic</p>
+      </section>
+
+      <section class="presets-section">
+        <h2 class="section-title">Choose Your Style</h2>
+        <div id="presets-list" class="presets-list"></div>
+      </section>
+
+    </div>
+
+    <!-- ── TIMER SCREEN ── -->
+    <div id="timer-screen" class="screen">
+
+      <button id="home-btn" class="home-btn" title="Back to home">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+      </button>
+
+      <div class="timer-header">
+        <img src="Dabby_Logo_nobg.png" class="logo-img" alt="Dabby" />
+        <p id="timer-preset-label"></p>
+      </div>
+
+      <div class="phase-indicator">
+        <span id="phase-icon">🔥</span>
+        <span id="phase-text">Heat Up</span>
+      </div>
+
+      <div class="timer-container">
+        <svg class="timer-svg" viewBox="0 0 200 200">
+          <!-- Background track -->
+          <circle
+            cx="100" cy="100" r="90"
+            fill="none"
+            stroke="rgba(255,255,255,0.07)"
+            stroke-width="9"
+          />
+          <!-- Progress arc -->
+          <circle
+            id="progress-ring"
+            cx="100" cy="100" r="90"
+            fill="none"
+            stroke="#ff5722"
+            stroke-width="9"
+            stroke-linecap="round"
+            stroke-dasharray="565.49"
+            stroke-dashoffset="0"
+            transform="rotate(-90 100 100)"
+          />
+        </svg>
+        <div id="time-display" style="color: #ff5722;">30s</div>
+      </div>
+
+      <div id="done-message">Session complete!</div>
+
+      <div class="phase-steps">
+        <div id="step-heat" class="step active">
+          <span>🔥</span>
+          <span id="step-heat-label">30s heat</span>
+        </div>
+        <div class="step-arrow">→</div>
+        <div id="step-cool" class="step">
+          <span>❄️</span>
+          <span id="step-cool-label">30s cool</span>
+        </div>
+      </div>
+
+      <button id="cooldown-btn" class="cooldown-btn">❄️ Cool Down Now</button>
+
+      <!-- Countdown overlay -->
+      <div id="countdown-overlay" class="hidden">
+        <p class="countdown-label">Get Ready</p>
+        <span id="countdown-number">3</span>
+      </div>
+
+      <!-- Done overlay -->
+      <div id="done-overlay">
+        <div id="stars-container"></div>
+        <div class="rocket-wrap">
+          <span class="rocket-emoji">🚀</span>
+        </div>
+        <p class="liftoff-text">Time For Liftoff</p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ── SOUNDS PANEL ── -->
+  <div id="sounds-panel">
+    <div class="sounds-sheet">
+
+      <div class="sounds-sheet-header">
+        <span class="sounds-sheet-title">Sounds</span>
+        <button id="sounds-close-btn" class="sounds-close-btn">✕</button>
+      </div>
+
+      <div class="sounds-section">
+        <h3 class="sounds-section-title">🔥 Heat Up</h3>
+        <div id="heat-sound-options" class="sound-options"></div>
+      </div>
+
+      <div class="sounds-divider"></div>
+
+      <div class="sounds-section">
+        <h3 class="sounds-section-title">❄️ Cool Down</h3>
+        <div id="cool-sound-options" class="sound-options"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* ── Presets ── */
+    const PRESETS = [
+      {
+        id: 'balance',
+        name: 'Classic',
+        emoji: '⚖️',
+        heatTime: 30,
+        coolTime: 30,
+        temp: '450–500°F',
+        description: 'The classic 30/30 rule — equal heat and cool time. A trusted balance of flavor and potency for most standard quartz bangers. The most popular method.',
+      },
+      {
+        id: 'flavor',
+        name: 'Low & Slow',
+        emoji: '🌿',
+        heatTime: 30,
+        coolTime: 60,
+        temp: '350–450°F',
+        description: 'Maximum terpene preservation for rich, full flavor. The long cool-down lets the banger drop to the sweet spot. Ideal for beginners and flavor chasers.',
+      },
+      {
+        id: 'potency',
+        name: 'High Temp',
+        emoji: '💨',
+        heatTime: 30,
+        coolTime: 15,
+        temp: '550–600°F',
+        description: 'Short cool-down for thicker, more immediate hits and bigger clouds. Sacrifices some terpene flavor for stronger effects. Best for experienced users.',
+      },
+      {
+        id: 'thick',
+        name: 'Thick Quartz',
+        emoji: '💎',
+        heatTime: 45,
+        coolTime: 75,
+        temp: '375–425°F',
+        description: 'Thick-walled bangers absorb and retain significantly more heat. They need a longer heat-up and extended cool-down to reach the ideal temperature window.',
+      },
+      {
+        id: 'titanium',
+        name: 'Titanium Nail',
+        emoji: '⚙️',
+        heatTime: 20,
+        coolTime: 20,
+        temp: '450–500°F',
+        description: 'Titanium heats rapidly and retains heat extremely well. Short heat-up and quick cool cycles efficiently reach a balanced hit. Lasts for years.',
+      },
+      {
+        id: 'custom',
+        name: 'Custom',
+        emoji: '🎛️',
+        heatTime: 30,
+        coolTime: 30,
+        tempLow: 350,
+        tempHigh: 450,
+        temp: 'Custom Temp',
+        description: 'Add your custom temp here.',
+      },
+    ];
+
+    const CIRCUMFERENCE = 2 * Math.PI * 90; // 565.49
+
+    let selectedPreset = PRESETS[0]; // Classic
+    let timerInterval = null;
+    let currentPhase = 'heat';
+    let phaseTimeLeft = 0;
+    let currentPreset = null;
+    let countdownTimeout = null;
+
+    /* ── Audio engine ── */
+    function playBell(freq, duration = 1.3, volume = 0.45) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [[freq, volume], [freq * 2, volume * 0.22]].forEach(([f, v]) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = 'sine';
+          osc.frequency.value = f;
+          gain.gain.setValueAtTime(v, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + duration);
+        });
+      } catch (_) {}
+    }
+
+    function playTone(freq, duration, volume = 0.5) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine'; osc.frequency.value = freq;
+        gain.gain.setValueAtTime(volume, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + duration);
+      } catch (_) {}
+    }
+
+    /* ── Sound definitions ── */
+    const HEAT_SOUNDS = [
+      {
+        id: 'bell-chime',
+        name: 'Bell Chime',
+        play() {
+          playBell(523.25, 1.3, 0.45);
+          setTimeout(() => playBell(659.25, 1.3, 0.45), 140);
+          setTimeout(() => playBell(783.99, 1.6, 0.50), 280);
+        },
+      },
+      {
+        id: 'single-bell',
+        name: 'Single Bell',
+        play() { playBell(880, 1.6, 0.55); },
+      },
+      {
+        id: 'triple-beep',
+        name: 'Triple Beep',
+        play() {
+          playTone(800, 0.12, 0.55);
+          setTimeout(() => playTone(800, 0.12, 0.55), 160);
+          setTimeout(() => playTone(800, 0.12, 0.55), 320);
+        },
+      },
+      {
+        id: 'soft-chime',
+        name: 'Soft Chime',
+        play() {
+          playBell(659.25, 1.2, 0.38);
+          setTimeout(() => playBell(783.99, 1.5, 0.42), 180);
+        },
+      },
+      {
+        id: 'none',
+        name: 'None',
+        play() {},
+      },
+    ];
+
+    const COOL_SOUNDS = [
+      {
+        id: 'bell-chord',
+        name: 'Bell Chord',
+        play() {
+          playBell(523.25, 1.1, 0.40);
+          setTimeout(() => playBell(659.25, 1.1, 0.40), 130);
+          setTimeout(() => playBell(783.99, 1.1, 0.40), 260);
+          setTimeout(() => playBell(1046.5, 2.0, 0.50), 390);
+        },
+      },
+      {
+        id: 'triple-bell',
+        name: 'Triple Bell',
+        play() {
+          playBell(659.25, 1.3, 0.45);
+          setTimeout(() => playBell(659.25, 1.3, 0.45), 200);
+          setTimeout(() => playBell(659.25, 1.6, 0.50), 400);
+        },
+      },
+      {
+        id: 'victory',
+        name: 'Victory',
+        play() {
+          playBell(392.00, 0.9, 0.38);  // G4
+          setTimeout(() => playBell(493.88, 0.9, 0.38), 120); // B4
+          setTimeout(() => playBell(587.33, 0.9, 0.38), 240); // D5
+          setTimeout(() => playBell(783.99, 1.6, 0.50), 360); // G5
+        },
+      },
+      {
+        id: 'gentle-done',
+        name: 'Gentle Done',
+        play() { playBell(523.25, 2.2, 0.40); },
+      },
+      {
+        id: 'none',
+        name: 'None',
+        play() {},
+      },
+    ];
+
+    let selectedHeatSound = HEAT_SOUNDS[0];
+    let selectedCoolSound = COOL_SOUNDS[0];
+
+    /* ── Wake Lock ── */
+    let wakeLock = null;
+
+    async function requestWakeLock() {
+      if ('wakeLock' in navigator) {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+        } catch (_) {}
+      }
+    }
+
+    function releaseWakeLock() {
+      if (wakeLock) {
+        wakeLock.release().catch(() => {});
+        wakeLock = null;
+      }
+    }
+
+    // Re-acquire if user briefly leaves the app and comes back mid-session
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' &&
+          document.getElementById('timer-screen').classList.contains('active')) {
+        requestWakeLock();
+      }
+    });
+
+    function playTransitionBeep() { selectedHeatSound.play(); }
+    function playDoneBeep()       { selectedCoolSound.play(); }
+
+    /* ── Countdown ── */
+    function startCountdown(onDone) {
+      const overlay = document.getElementById('countdown-overlay');
+      const numEl   = document.getElementById('countdown-number');
+      overlay.classList.remove('hidden');
+
+      let count = 3;
+
+      function showCount() {
+        numEl.textContent = count;
+        // Restart CSS animation
+        numEl.style.animation = 'none';
+        numEl.getBoundingClientRect(); // force reflow
+        numEl.style.animation = '';
+
+        count--;
+
+        if (count === 0) {
+          countdownTimeout = setTimeout(() => {
+            countdownTimeout = null;
+            overlay.classList.add('hidden');
+            onDone();
+          }, 1000);
+        } else {
+          countdownTimeout = setTimeout(showCount, 1000);
+        }
+      }
+
+      showCount();
+    }
+
+    function cancelCountdown() {
+      if (countdownTimeout) {
+        clearTimeout(countdownTimeout);
+        countdownTimeout = null;
+      }
+      document.getElementById('countdown-overlay').classList.add('hidden');
+    }
+
+    /* ── Screen transitions ── */
+    function showMainScreen() {
+      releaseWakeLock();
+      cancelCountdown();
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      document.getElementById('main-screen').classList.add('active');
+      const ts = document.getElementById('timer-screen');
+      ts.classList.remove('active', 'heat', 'cool');
+
+      // Reset done overlay
+      document.getElementById('done-overlay').classList.remove('visible');
+      document.getElementById('stars-container').innerHTML = '';
+      document.querySelector('.phase-indicator').style.display = '';
+      document.querySelector('.timer-container').style.display = '';
+      document.querySelector('.phase-steps').style.display    = '';
+      document.getElementById('cooldown-btn').style.display   = '';
+      document.getElementById('done-message').style.display   = 'none';
+    }
+
+    function showTimerScreen() {
+      document.getElementById('main-screen').classList.remove('active');
+      document.getElementById('timer-screen').classList.add('active');
+    }
+
+    /* ── Timer UI update ── */
+    function updateTimerUI(phase, timeLeft, preset) {
+      const isHeat = phase === 'heat';
+      const total = isHeat ? preset.heatTime : preset.coolTime;
+      const progress = total > 0 ? (total - timeLeft) / total : 1;
+      const dashOffset = CIRCUMFERENCE * progress;
+
+      const color = isHeat ? '#ff5722' : '#29b6f6';
+      const glow  = isHeat ? 'rgba(255,87,34,0.25)' : 'rgba(41,182,246,0.25)';
+
+      // Ring arc
+      const ring = document.getElementById('progress-ring');
+      ring.style.strokeDashoffset = dashOffset;
+      ring.style.stroke = color;
+      ring.style.filter = `drop-shadow(0 0 6px ${glow})`;
+
+      // Countdown number
+      const display = document.getElementById('time-display');
+      display.textContent = timeLeft + 's';
+      display.style.color = color;
+
+      // Phase label
+      document.getElementById('phase-icon').textContent = isHeat ? '🔥' : '❄️';
+      document.getElementById('phase-text').textContent  = isHeat ? 'Heat Up' : 'Cool Down';
+
+      // Screen tint
+      const ts = document.getElementById('timer-screen');
+      ts.classList.toggle('heat', isHeat);
+      ts.classList.toggle('cool', !isHeat);
+
+      // Step indicators
+      document.getElementById('step-heat').className = isHeat ? 'step active' : 'step completed';
+      document.getElementById('step-cool').className = isHeat ? 'step' : 'step active';
+
+      // Cool Down Now button — only during heat phase
+      document.getElementById('cooldown-btn').classList.toggle('visible', isHeat);
+    }
+
+    function generateStars() {
+      const container = document.getElementById('stars-container');
+      container.innerHTML = '';
+      const chars = ['✦', '✧', '★', '✶', '·', '✦', '✧'];
+      for (let i = 0; i < 18; i++) {
+        const star = document.createElement('span');
+        star.className = 'star';
+        star.textContent = chars[Math.floor(Math.random() * chars.length)];
+        star.style.left  = (5 + Math.random() * 88).toFixed(1) + '%';
+        star.style.top   = (5 + Math.random() * 88).toFixed(1) + '%';
+        star.style.fontSize = (9 + Math.random() * 13).toFixed(0) + 'px';
+        star.style.color = Math.random() > 0.5 ? 'rgba(255,255,255,0.8)' : 'rgba(41,182,246,0.8)';
+        star.style.setProperty('--dur',   (1 + Math.random() * 1.8).toFixed(2) + 's');
+        star.style.setProperty('--delay', (Math.random() * 1.5).toFixed(2) + 's');
+        container.appendChild(star);
+      }
+    }
+
+    function showDoneState() {
+      // Drain the ring
+      const ring = document.getElementById('progress-ring');
+      ring.style.strokeDashoffset = CIRCUMFERENCE;
+
+      // Hide timer elements
+      document.querySelector('.phase-indicator').style.display = 'none';
+      document.querySelector('.timer-container').style.display = 'none';
+      document.querySelector('.phase-steps').style.display    = 'none';
+      document.getElementById('cooldown-btn').style.display   = 'none';
+
+      // Show rocket overlay
+      generateStars();
+      document.getElementById('done-overlay').classList.add('visible');
+    }
+
+    /* ── Phase logic ── */
+    function startPhase(phase, duration, preset) {
+      currentPhase = phase;
+      phaseTimeLeft = duration;
+
+      // Reset ring to full instantly (no transition) then re-enable
+      const ring = document.getElementById('progress-ring');
+      ring.style.transition = 'none';
+      ring.style.strokeDashoffset = 0;
+      ring.getBoundingClientRect(); // force reflow
+      ring.style.transition = '';
+
+      updateTimerUI(phase, phaseTimeLeft, preset);
+
+      timerInterval = setInterval(() => {
+        phaseTimeLeft--;
+
+        if (phaseTimeLeft <= 0) {
+          phaseTimeLeft = 0;
+          updateTimerUI(phase, 0, preset);
+          clearInterval(timerInterval);
+          timerInterval = null;
+          handlePhaseEnd(preset);
+        } else {
+          updateTimerUI(phase, phaseTimeLeft, preset);
+        }
+      }, 1000);
+    }
+
+    function handlePhaseEnd(preset) {
+      if (currentPhase === 'heat') {
+        playTransitionBeep();
+        // Short pause so "0s" is visible before cool starts
+        setTimeout(() => startPhase('cool', preset.coolTime, preset), 350);
+      } else {
+        playDoneBeep();
+        showDoneState();
+        // Stay on screen — user taps home to go back
+      }
+    }
+
+    /* ── Start session ── */
+    function startSession() {
+      requestWakeLock();
+      const preset = selectedPreset;
+      currentPreset = preset;
+
+      // Prime the timer screen labels
+      document.getElementById('timer-preset-label').textContent = preset.emoji + ' ' + preset.name;
+      document.getElementById('step-heat-label').textContent = preset.heatTime + 's heat';
+      document.getElementById('step-cool-label').textContent = preset.coolTime + 's cool';
+      document.getElementById('done-message').style.display = 'none';
+
+      showTimerScreen();
+      startCountdown(() => startPhase('heat', preset.heatTime, preset));
+    }
+
+    function skipToCool() {
+      if (currentPhase !== 'heat' || !currentPreset) return;
+      clearInterval(timerInterval);
+      timerInterval = null;
+      playTransitionBeep();
+      setTimeout(() => startPhase('cool', currentPreset.coolTime, currentPreset), 350);
+    }
+
+    /* ── Preset selection ── */
+    function selectPreset(id) {
+      selectedPreset = PRESETS.find(p => p.id === id);
+      renderPresets();
+      updateSelectedDisplay();
+    }
+
+    function updateSelectedDisplay() {
+      document.getElementById('selected-heat').textContent = '🔥 ' + selectedPreset.heatTime + 's';
+      document.getElementById('selected-cool').textContent = '❄️ ' + selectedPreset.coolTime + 's';
+      document.getElementById('selected-name').textContent = selectedPreset.emoji + ' ' + selectedPreset.name;
+    }
+
+    function renderPresets() {
+      const container = document.getElementById('presets-list');
+      container.innerHTML = PRESETS.map(preset => {
+        const isSelected = selectedPreset.id === preset.id;
+        const inner = preset.id === 'custom'
+          ? `<div class="preset-desc-wrap">
+              <p class="preset-desc">${preset.description}</p>
+              <div class="custom-controls">
+                <div class="custom-row">
+                  <span class="custom-label">🌡️ Temp Low</span>
+                  <div class="stepper">
+                    <button class="stepper-btn" data-action="custom-dec" data-field="temp-low">−</button>
+                    <span class="stepper-val">${preset.tempLow}°F</span>
+                    <button class="stepper-btn" data-action="custom-inc" data-field="temp-low">+</button>
+                  </div>
+                </div>
+                <div class="custom-row">
+                  <span class="custom-label">🌡️ Temp High</span>
+                  <div class="stepper">
+                    <button class="stepper-btn" data-action="custom-dec" data-field="temp-high">−</button>
+                    <span class="stepper-val">${preset.tempHigh}°F</span>
+                    <button class="stepper-btn" data-action="custom-inc" data-field="temp-high">+</button>
+                  </div>
+                </div>
+                <div class="custom-row">
+                  <span class="custom-label">🔥 Heat</span>
+                  <div class="stepper">
+                    <button class="stepper-btn" data-action="custom-dec" data-field="heat">−</button>
+                    <span class="stepper-val">${preset.heatTime}s</span>
+                    <button class="stepper-btn" data-action="custom-inc" data-field="heat">+</button>
+                  </div>
+                </div>
+                <div class="custom-row">
+                  <span class="custom-label">❄️ Cool</span>
+                  <div class="stepper">
+                    <button class="stepper-btn" data-action="custom-dec" data-field="cool">−</button>
+                    <span class="stepper-val">${preset.coolTime}s</span>
+                    <button class="stepper-btn" data-action="custom-inc" data-field="cool">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>`
+          : `<div class="preset-desc-wrap">
+              <p class="preset-desc">${preset.description}</p>
+            </div>`;
+        return `
+          <div class="preset-card${isSelected ? ' selected expanded' : ''}" data-id="${preset.id}">
+            <div class="preset-top">
+              <div class="preset-info">
+                <span class="preset-emoji">${preset.emoji}</span>
+                <div>
+                  <div class="preset-name">${preset.name}</div>
+                  <div class="preset-temp">${preset.id === 'custom' ? preset.tempLow + '–' + preset.tempHigh + '°F' : preset.temp}</div>
+                </div>
+              </div>
+              <div class="preset-times">
+                <div class="time-chip heat-chip">🔥 ${preset.heatTime}s</div>
+                <div class="time-chip cool-chip">❄️ ${preset.coolTime}s</div>
+              </div>
+            </div>
+            ${inner}
+            <button class="preset-toggle" data-action="toggle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ── Event listeners ── */
+    document.getElementById('start-btn').addEventListener('click', startSession);
+
+    document.getElementById('home-btn').addEventListener('click', showMainScreen);
+    document.getElementById('cooldown-btn').addEventListener('click', skipToCool);
+
+    document.getElementById('presets-list').addEventListener('click', (e) => {
+      const stepperBtn = e.target.closest('.stepper-btn');
+      if (stepperBtn) {
+        e.stopPropagation();
+        const custom = PRESETS.find(p => p.id === 'custom');
+        const inc = stepperBtn.dataset.action === 'custom-inc';
+        const field = stepperBtn.dataset.field;
+        if (field === 'temp-low') {
+          custom.tempLow = Math.min(custom.tempHigh, Math.max(200, custom.tempLow + (inc ? 25 : -25)));
+        } else if (field === 'temp-high') {
+          custom.tempHigh = Math.max(custom.tempLow, Math.min(900, custom.tempHigh + (inc ? 25 : -25)));
+        } else if (field === 'heat') {
+          custom.heatTime = Math.min(300, Math.max(5, custom.heatTime + (inc ? 5 : -5)));
+        } else {
+          custom.coolTime = Math.min(300, Math.max(5, custom.coolTime + (inc ? 5 : -5)));
+        }
+        if (selectedPreset.id === 'custom') updateSelectedDisplay();
+        renderPresets();
+        return;
+      }
+      const toggleBtn = e.target.closest('.preset-toggle');
+      if (toggleBtn) {
+        e.stopPropagation();
+        toggleBtn.closest('.preset-card').classList.toggle('expanded');
+        return;
+      }
+      const card = e.target.closest('.preset-card');
+      if (card) selectPreset(card.dataset.id);
+    });
+
+    /* ── Sounds panel ── */
+    function renderSoundOptions(containerId, sounds, getSelected, onSelect) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = sounds.map(s => `
+        <div class="sound-option ${getSelected().id === s.id ? 'selected' : ''}" data-id="${s.id}">
+          <div class="sound-option-left">
+            <div class="sound-radio"></div>
+            <span class="sound-name">${s.name}</span>
+          </div>
+          ${s.id !== 'none' ? `<button class="sound-preview-btn" data-id="${s.id}">▶ Play</button>` : ''}
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.sound-option').forEach(el => {
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.sound-preview-btn')) return;
+          onSelect(el.dataset.id);
+          renderSoundOptions(containerId, sounds, getSelected, onSelect);
+        });
+      });
+
+      container.querySelectorAll('.sound-preview-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sound = sounds.find(s => s.id === btn.dataset.id);
+          if (sound) sound.play();
+        });
+      });
+    }
+
+    function openSoundsPanel() {
+      renderSoundOptions(
+        'heat-sound-options', HEAT_SOUNDS,
+        () => selectedHeatSound,
+        id => { selectedHeatSound = HEAT_SOUNDS.find(s => s.id === id); }
+      );
+      renderSoundOptions(
+        'cool-sound-options', COOL_SOUNDS,
+        () => selectedCoolSound,
+        id => { selectedCoolSound = COOL_SOUNDS.find(s => s.id === id); }
+      );
+      document.getElementById('sounds-panel').classList.add('open');
+    }
+
+    function closeSoundsPanel() {
+      document.getElementById('sounds-panel').classList.remove('open');
+    }
+
+    document.getElementById('sounds-btn').addEventListener('click', openSoundsPanel);
+    document.getElementById('sounds-close-btn').addEventListener('click', closeSoundsPanel);
+    document.getElementById('sounds-panel').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('sounds-panel')) closeSoundsPanel();
+    });
+
+    /* ── Init ── */
+    renderPresets();
+    updateSelectedDisplay();
+  </script>
+</body>
+</html>

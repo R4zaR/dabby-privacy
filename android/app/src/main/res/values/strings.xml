@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Dabby</string>
+    <string name="title_activity_main">Dabby</string>
+    <string name="package_name">com.dabby.app</string>
+    <string name="custom_url_scheme">com.dabby.app</string>
+</resources>
