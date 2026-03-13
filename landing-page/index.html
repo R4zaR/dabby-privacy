@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dabby - Dab Nail Timer & Temp Guide</title>
+  <meta name="description" content="Dabby is the ultimate dab nail timer app. Perfect heat-up and cool-down timers for the best dab every time." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f0f0f;
+      --surface:   #1a1a1a;
+      --surface-2: #222222;
+      --border:    rgba(255,255,255,0.08);
+      --text:      #f0f0f0;
+      --text-muted:#9a9a9a;
+      --green:     #22c55e;
+      --green-dark:#15803d;
+      --yellow:    #facc15;
+      --orange:    #ff5722;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(15,15,15,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 18px; font-weight: 800;
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+    .nav-logo img { height: 36px; border-radius: 8px; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a {
+      color: var(--text-muted); text-decoration: none;
+      font-size: 14px; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 60px 24px 36px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(34,197,94,0.12);
+      color: var(--green);
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 13px; font-weight: 600;
+      margin: 0 auto 24px;
+      letter-spacing: 0.3px;
+    }
+    .hero img {
+      width: 110px; height: 110px;
+      border-radius: 24px;
+      margin: 0 auto 28px;
+      display: block;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 58px);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 540px;
+      margin: 0 auto 36px;
+    }
+    .hero-btns {
+      display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px;
+      border-radius: 12px;
+      font-size: 15px; font-weight: 700;
+      text-decoration: none;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn:hover { transform: translateY(-2px); opacity: 0.92; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      color: #fff;
+    }
+    .btn-secondary {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn img { width: 20px; height: 20px; filter: brightness(10); }
+
+    /* ── SECTION SHARED ── */
+    section { padding: 52px 24px; }
+    #pro { padding-bottom: 20px; }
+    #waitlist { padding-top: 20px; }
+    .section-inner { max-width: 1000px; margin: 0 auto; }
+    .section-label {
+      font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--green);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 900; letter-spacing: -1px;
+      margin-bottom: 14px;
+    }
+    .section-sub {
+      font-size: 16px; color: var(--text-muted);
+      max-width: 520px; margin-bottom: 48px;
+    }
+
+    /* ── FEATURES ── */
+    #features { background: var(--surface); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover {
+      border-color: rgba(34,197,94,0.3);
+      transform: translateY(-3px);
+    }
+    .feature-icon {
+      font-size: 32px; margin-bottom: 14px;
+    }
+    .feature-card h3 {
+      font-size: 17px; font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .feature-card p {
+      font-size: 14px; color: var(--text-muted); line-height: 1.6;
+    }
+
+    /* ── PRESETS ── */
+    #presets {}
+    .presets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    .preset-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 18px;
+      text-align: center;
+    }
+    .preset-emoji { font-size: 28px; margin-bottom: 10px; }
+    .preset-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .preset-card p { font-size: 13px; color: var(--text-muted); }
+    .preset-times {
+      display: flex; gap: 8px; justify-content: center; margin-top: 10px;
+    }
+    .badge {
+      font-size: 11px; font-weight: 700;
+      padding: 3px 8px; border-radius: 999px;
+    }
+    .badge-heat { background: rgba(255,87,34,0.15); color: #ff5722; }
+    .badge-cool { background: rgba(59,130,246,0.15); color: #60a5fa; }
+
+    /* ── PRO ── */
+    #pro { background: var(--surface); }
+    .pro-card {
+      background: linear-gradient(135deg, #0b1a10 0%, #0f172a 100%);
+      border: 1px solid rgba(34,197,94,0.35);
+      border-radius: 20px;
+      padding: 48px 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+    @media (max-width: 640px) {
+      .pro-card { grid-template-columns: 1fr; gap: 16px; padding: 32px 24px; }
+    }
+    .pro-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #facc15, #f59e0b);
+      color: #000;
+      font-size: 12px; font-weight: 800;
+      letter-spacing: 1px; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 999px;
+      margin-bottom: 16px;
+    }
+    .pro-card h2 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 900; letter-spacing: -1px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .pro-card > div > p {
+      font-size: 15px; color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+    .pro-price {
+      font-size: 42px; font-weight: 900;
+      color: var(--yellow);
+      letter-spacing: -1px;
+    }
+    .pro-price span {
+      font-size: 16px; font-weight: 500;
+      color: var(--text-muted);
+    }
+    .pro-features-list {
+      list-style: none;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .pro-features-list li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 15px;
+    }
+    .pro-features-list li .check {
+      color: var(--green);
+      font-size: 18px; margin-top: 1px; flex-shrink: 0;
+    }
+    .coming-soon-tag {
+      display: inline-block;
+      background: rgba(250,204,21,0.12);
+      color: var(--yellow);
+      border: 1px solid rgba(250,204,21,0.25);
+      font-size: 11px; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px;
+      margin-left: 8px; vertical-align: middle;
+    }
+
+    /* ── PLATFORMS ── */
+    #platforms { text-align: center; }
+    .platform-logos {
+      display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+      margin-top: 36px;
+    }
+    .platform-pill {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 12px 22px;
+      font-size: 15px; font-weight: 600;
+    }
+    .platform-pill span { font-size: 22px; }
+
+    /* ── WAITLIST ── */
+    #waitlist {
+      background: var(--surface);
+      text-align: center;
+    }
+    .waitlist-form {
+      display: flex; gap: 12px; justify-content: center;
+      flex-wrap: wrap;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .waitlist-form input[type="email"] {
+      flex: 1;
+      min-width: 220px;
+      padding: 13px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .waitlist-form input[type="email"]:focus {
+      border-color: var(--green);
+    }
+    .waitlist-form input[type="email"]::placeholder {
+      color: var(--text-muted);
+    }
+    .waitlist-form button {
+      padding: 13px 26px;
+      border-radius: 12px;
+      border: 1px solid rgba(34,197,94,0.35);
+      background: rgba(34,197,94,0.1);
+      color: var(--green);
+      font-size: 15px; font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .waitlist-form button:hover {
+      background: rgba(34,197,94,0.18); transform: translateY(-2px);
+    }
+    .waitlist-note {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 14px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+    }
+    footer p { font-size: 13px; color: var(--text-muted); }
+    footer a { color: var(--green); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#">
+      <img src="Dabby_Logo_nobg.png" alt="Dabby" />
+      Dabby — Dab Timer &amp; Temp Guide App
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#presets">Presets</a>
+      <a href="#try-it">Try It</a>
+      <a href="#pro">Pro</a>
+      <a href="#waitlist">Waitlist</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <img src="Dabby_Logo_nobg.png" alt="Dabby App Icon" />
+    <div class="hero-badge">🚀 Currently under beta testing. Coming soon to both iOS and Android</div>
+    <h1>The Perfect Dab,<br /><span>Every Time.</span></h1>
+    <p>Dabby is the ultimate dab nail timer — with precision heat-up and cool-down presets designed for the best low-temp dab experience.</p>
+    <div class="hero-btns">
+      <div class="btn btn-secondary" style="opacity:0.5; cursor: default;">
+        🤖 Android — Coming Soon
+      </div>
+      <div class="btn btn-secondary" style="opacity:0.5; cursor: default;">
+        🍎 iOS — Coming Soon
+      </div>
+    </div>
+  </div>
+
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="section-inner">
+      <p class="section-label">Features</p>
+      <h2 class="section-title">Everything you need for the perfect dab</h2>
+      <p class="section-sub">Built for concentrate enthusiasts who take their sessions seriously.</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⏱️</div>
+          <h3>Precision Timer</h3>
+          <p>Separate heat-up and cool-down timers with a visual countdown ring so you never miss the sweet spot.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚖️</div>
+          <h3>Built-in Presets</h3>
+          <p>Choose from Classic, Low &amp; Slow, High Temp, Thick Quartz, Titanium Nail, and more — each dialed in for specific setups.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎛️</div>
+          <h3>Custom Presets</h3>
+          <p>Set your own heat and cool times to match your exact setup — banger, insert, e-nail, or anything in between.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔔</div>
+          <h3>Sound Alerts</h3>
+          <p>Multiple chime options notify you when it's time to dab and when to cool down — no need to watch the screen.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌑</div>
+          <h3>Dark Mode UI</h3>
+          <p>Sleek, dark interface designed for low-light sessions. Easy on the eyes when the lights are dim.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>Screen Always On</h3>
+          <p>Screen stays awake during your session so you can watch the timer without touching your phone.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRESETS -->
+  <section id="presets">
+    <div class="section-inner">
+      <p class="section-label">Presets</p>
+      <h2 class="section-title">Presets for every style</h2>
+      <p class="section-sub">Whether you're a low-temp terp chaser or a high-temp ripper, Dabby has a preset ready for you.</p>
+      <div class="presets-grid">
+        <div class="preset-card">
+          <div class="preset-emoji">⚖️</div>
+          <h3>Classic</h3>
+          <p>The balanced, go-to preset for most bangers.</p>
+          <div class="preset-times">
+            <span class="badge badge-heat">🔥 30s</span>
+            <span class="badge badge-cool">❄️ 30s</span>
+          </div>
+        </div>
+        <div class="preset-card">
+          <div class="preset-emoji">🌿</div>
+          <h3>Low &amp; Slow</h3>
+          <p>Maximum terpene preservation for rich, full flavor.</p>
+          <div class="preset-times">
+            <span class="badge badge-heat">🔥 30s</span>
+            <span class="badge badge-cool">❄️ 60s</span>
+          </div>
+        </div>
+        <div class="preset-card">
+          <div class="preset-emoji">💨</div>
+          <h3>High Temp</h3>
+          <p>Full vaporization for bigger, denser hits.</p>
+          <div class="preset-times">
+            <span class="badge badge-heat">🔥 30s</span>
+            <span class="badge badge-cool">❄️ 15s</span>
+          </div>
+        </div>
+        <div class="preset-card">
+          <div class="preset-emoji">💎</div>
+          <h3>Thick Quartz</h3>
+          <p>Extended timing for thick-walled bangers that retain more heat.</p>
+          <div class="preset-times">
+            <span class="badge badge-heat">🔥 45s</span>
+            <span class="badge badge-cool">❄️ 75s</span>
+          </div>
+        </div>
+        <div class="preset-card">
+          <div class="preset-emoji">⚙️</div>
+          <h3>Titanium Nail</h3>
+          <p>Short, efficient cycles for titanium's rapid heat retention.</p>
+          <div class="preset-times">
+            <span class="badge badge-heat">🔥 20s</span>
+            <span class="badge badge-cool">❄️ 20s</span>
+          </div>
+        </div>
+        <div class="preset-card">
+          <div class="preset-emoji">🎛️</div>
+          <h3>Custom</h3>
+          <p>Set your own heat and cool times for any setup.</p>
+          <div class="preset-times">
+            <span class="badge badge-heat">🔥 Your time</span>
+            <span class="badge badge-cool">❄️ Your time</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRY IT -->
+  <section id="try-it">
+    <div class="section-inner">
+      <p class="section-label">Try It Free</p>
+      <h2 class="section-title">Try it free in your browser</h2>
+      <p class="section-sub" style="margin-bottom: 36px;">No download needed — experience Dabby right now.</p>
+      <div style="
+        position: relative;
+        width: 320px;
+        margin: 0 auto;
+        background: #1a1a1a;
+        border-radius: 48px;
+        padding: 14px;
+        border: 2px solid rgba(34,197,94,0.35);
+        box-shadow: 0 0 60px rgba(34,197,94,0.15), 0 20px 60px rgba(0,0,0,0.6);
+      ">
+        <!-- Speaker -->
+        <div style="
+          width: 60px; height: 6px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 999px;
+          margin: 0 auto 12px;
+        "></div>
+        <!-- Screen -->
+        <div style="
+          border-radius: 36px;
+          overflow: hidden;
+          height: 680px;
+          background: #0f0f0f;
+        ">
+          <iframe
+            src="app/index.html"
+            style="width: 100%; height: 680px; border: none; display: block;"
+            title="Try Dabby in your browser"
+          ></iframe>
+        </div>
+        <!-- Home indicator -->
+        <div style="
+          width: 120px; height: 5px;
+          background: rgba(255,255,255,0.15);
+          border-radius: 999px;
+          margin: 12px auto 0;
+        "></div>
+      </div>
+      <p style="margin-top: 20px; font-size: 13px; color: var(--text-muted); text-align: center;">
+        🌿 Free to try &nbsp;·&nbsp; No account needed &nbsp;·&nbsp; Works on any device
+      </p>
+    </div>
+  </section>
+
+  <!-- PRO -->
+  <section id="pro">
+    <div class="section-inner">
+      <div class="pro-card">
+        <div>
+          <div class="pro-badge">⭐ Coming Soon</div>
+          <h2>Dabby Pro</h2>
+          <p>Unlock the full Dabby experience. Try it monthly or own it forever — your choice.</p>
+          <div style="display: flex; gap: 16px; margin: 24px 0; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 130px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 12px; padding: 16px 20px; text-align: center;">
+              <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Monthly</div>
+              <div class="pro-price" style="margin: 0; line-height: 1;">$2.99</div>
+              <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">/ month</div>
+            </div>
+            <div style="flex: 1; min-width: 130px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 12px; padding: 16px 20px; text-align: center;">
+              <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Lifetime</div>
+              <div class="pro-price" style="margin: 0; line-height: 1;">$9.99</div>
+              <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">one-time</div>
+            </div>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); font-style: italic; line-height: 1.6; margin-bottom: 0;">One dev. Zero funding. Built out of pure passion — every purchase goes directly to the person who built it. Thank you. 🙏</p>
+        </div>
+        <ul class="pro-features-list">
+          <li>
+            <span class="check">✓</span>
+            <span><strong>Ad-Free Experience</strong> — Remove all ads permanently</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span><strong>Unlimited Custom Presets</strong> — Save as many setups as you want <span class="coming-soon-tag">Coming Soon</span></span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span><strong>Custom Themes</strong> — Personalize the app's look and feel <span class="coming-soon-tag">Coming Soon</span></span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span><strong>Session History & Stats</strong> — Track your dab sessions over time <span class="coming-soon-tag">Coming Soon</span></span>
+          </li>
+          <li>
+            <span class="check" style="color: var(--text-muted);">✨</span>
+            <span style="color: var(--text-muted); font-style: italic;">More exclusive Pro features on the way — stay tuned.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAITLIST -->
+  <section id="waitlist">
+    <div class="section-inner">
+      <p class="section-label">Stay in the Loop</p>
+      <p class="section-sub" style="margin: 8px auto 32px;">Get notified the moment Dabby launches on Android and iOS. No spam, ever.</p>
+      <form class="waitlist-form" action="https://app.us15.list-manage.com/subscribe/post?u=ca0a4e0e8fe5760ca1b8f6e5f&amp;id=db3764deb0&amp;f_id=007ec3e1f0" method="POST" target="_blank">
+        <input type="email" name="EMAIL" placeholder="Enter your email address" required />
+        <!-- Mailchimp bot prevention - do not remove -->
+        <div style="position: absolute; left: -5000px;" aria-hidden="true">
+          <input type="text" name="b_ca0a4e0e8fe5760ca1b8f6e5f_db3764deb0" tabindex="-1" value="">
+        </div>
+        <button type="submit">Notify Me 🔔</button>
+      </form>
+      <p class="waitlist-note">🔒 Your email is safe with us. Unsubscribe anytime.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 Dabby. All rights reserved. &nbsp;·&nbsp;
+      <a href="https://r4zar.github.io/dabby-privacy/" target="_blank">Privacy Policy</a>
+    </p>
+  </footer>
+
+</body>
+</html>
